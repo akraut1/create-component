@@ -19,8 +19,6 @@ export default {
 };
 </script>
 
-<style src="./styles/globals.css"></style>
-
 <style lang="scss" scoped>
 .my-element {
   p {

@@ -1,4 +1,5 @@
 import React from "react";
+import "./styles/globals.css";
 
 export default (props) => {
     const style = { color: props.content && props.content.textColor };
