@@ -98,9 +98,6 @@
 </template>
 
 <script>
-import { Clerk } from '@clerk/clerk-js';
-import { createClient } from '@supabase/supabase-js';
-
 export default {
   props: {
     content: { type: Object, required: true },
@@ -113,21 +110,62 @@ export default {
       errorMessage: '',
       clerk: null,
       supabase: null,
+      scriptsLoaded: false,
     };
   },
   async mounted() {
+    await this.loadExternalScripts();
     await this.initializeClerk();
     this.initializeSupabase();
   },
   methods: {
+    async loadExternalScripts() {
+      if (this.scriptsLoaded) return;
+
+      // Load Clerk from CDN
+      await this.loadScript(
+        'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js',
+        'clerk-script'
+      );
+
+      // Load Supabase from CDN
+      await this.loadScript(
+        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+        'supabase-script'
+      );
+
+      this.scriptsLoaded = true;
+    },
+
+    loadScript(src, id) {
+      return new Promise((resolve, reject) => {
+        if (document.getElementById(id)) {
+          resolve();
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = src;
+        script.id = id;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    },
+
     async initializeClerk() {
       if (!this.content.clerkPublishableKey) {
         console.error('Clerk publishable key not provided');
         return;
       }
 
+      if (!window.Clerk) {
+        console.error('Clerk library not loaded');
+        return;
+      }
+
       try {
-        this.clerk = new Clerk(this.content.clerkPublishableKey);
+        this.clerk = new window.Clerk(this.content.clerkPublishableKey);
         await this.clerk.load();
         
         // Check if user is already signed in
@@ -146,7 +184,12 @@ export default {
         return;
       }
 
-      this.supabase = createClient(
+      if (!window.supabase) {
+        console.error('Supabase library not loaded');
+        return;
+      }
+
+      this.supabase = window.supabase.createClient(
         this.content.supabaseUrl,
         this.content.supabaseAnonKey,
         {
