@@ -12,32 +12,36 @@
       <!-- Form -->
       <form @submit.prevent="handleEmailSignIn" class="signin-form">
         <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+          <label for="signin-email" class="form-label">Email</label>
           <input
-            id="email"
+            id="signin-email"
+            name="email"
             v-model="email"
             type="email"
             placeholder="m@example.com"
             class="form-input"
             required
             :disabled="loading"
+            autocomplete="email"
           />
         </div>
 
         <div class="form-group">
           <div class="password-label-wrapper">
-            <label for="password" class="form-label">Password</label>
+            <label for="signin-password" class="form-label">Password</label>
             <a href="#" @click.prevent="handleForgotPassword" class="forgot-link">
               Forgot password?
             </a>
           </div>
           <input
-            id="password"
+            id="signin-password"
+            name="password"
             v-model="password"
             type="password"
             class="form-input"
             required
             :disabled="loading"
+            autocomplete="current-password"
           />
         </div>
 
