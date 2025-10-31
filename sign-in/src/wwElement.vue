@@ -184,6 +184,8 @@ export default {
 };
 </script>
 
+<style src="./styles/globals.css"></style>
+
 <style lang="scss" scoped>
 .clerk-signin-wrapper {
   display: flex;
