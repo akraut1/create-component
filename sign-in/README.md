@@ -1,193 +1,238 @@
-# Clerk Sign In Component for WeWeb
+# Sign In Form Component for WeWeb
 
-A beautiful, production-ready sign-in component for WeWeb that integrates Clerk authentication with Supabase using the official third-party auth integration.
+A beautiful, event-driven sign-in form component for WeWeb styled with shadcn/ui design principles. This component provides the UI and emits events for your WeWeb workflows to handle authentication.
 
 ## Design
 
-This component is styled to match the **shadcn/ui "sign-in-2"** design system, featuring:
+This component matches the **shadcn/ui "sign-in-2"** design system, featuring:
 - Clean, modern interface with proper spacing
-- Email/password authentication
+- Email/password form fields
 - GitHub and Google OAuth buttons
-- "Forgot password?" functionality
+- "Forgot password?" link
+- "Sign up" link
 - Responsive design with dark mode support
 - Loading states and error handling
 
-## Features
+## Architecture: Event-Driven
 
-✅ **Clerk Authentication**
-- Email/password sign-in
-- GitHub OAuth (replacing Apple)
-- Google OAuth
-- Session management
+This is a **UI-only component** that emits events. You handle the actual authentication logic in WeWeb workflows using:
+- Clerk authentication
+- Supabase Auth
+- Custom APIs
+- Or any other authentication service
 
-✅ **Supabase Integration**
-- Automatic JWT token integration
-- Works with Supabase RLS policies
-- Compatible with Clerk third-party auth
+## Events Emitted
 
-✅ **WeWeb Compatible**
-- Configurable properties
-- Event emission for WeWeb workflows
-- Responsive design
-
-## Installation
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Build the component:
-```bash
-npm run build
-```
-
-## Configuration
-
-### Required Properties
-
-Set these in WeWeb's component properties panel:
-
-| Property | Description | Example |
-|----------|-------------|---------|
-| `clerkPublishableKey` | Your Clerk publishable key | `pk_test_...` |
-| `supabaseUrl` | Your Supabase project URL | `https://xxx.supabase.co` |
-| `supabaseAnonKey` | Your Supabase anon key | `eyJhbGciOiJIUzI1...` |
-
-### Optional Properties
-
-| Property | Description | Default |
-|----------|-------------|---------|
-| `showGithubLogin` | Show GitHub login button | `true` |
-| `showGoogleLogin` | Show Google login button | `true` |
-| `redirectAfterSignIn` | Where to redirect after sign in | `/dashboard` |
-
-## Setup Guide
-
-### 1. Configure Clerk
-
-1. Go to [Clerk Dashboard](https://dashboard.clerk.com)
-2. Enable GitHub and/or Google OAuth providers
-3. Visit [Clerk's Connect with Supabase page](https://clerk.com/docs/integrations/databases/supabase)
-4. Follow the setup to add the `role` claim to your JWT tokens
-
-### 2. Configure Supabase
-
-1. Go to your Supabase project dashboard
-2. Navigate to **Authentication** → **Providers** → **Third Party Auth**
-3. Click "Add provider" and select **Clerk**
-4. Enter your Clerk domain (e.g., `your-app.clerk.accounts.dev`)
-5. Enable the integration
-
-### 3. Add Component to WeWeb
-
-1. Upload this component to your WeWeb project
-2. Drag it onto your sign-in page
-3. Configure the properties (Clerk key, Supabase URL, etc.)
-
-### 4. Use RLS Policies
-
-Now you can use Clerk JWT claims in your Supabase RLS policies:
-
-```sql
--- Example: Allow access based on Clerk organization
-create policy "Users can access their org data"
-on your_table
-for select
-to authenticated
-using (
-  organization_id = (select coalesce(auth.jwt()->>'org_id', auth.jwt()->'o'->>'id'))
-);
-```
-
-## Events
-
-The component emits the following events for WeWeb workflows:
+The component emits the following events for your WeWeb workflows:
 
 | Event | Payload | Description |
 |-------|---------|-------------|
-| `signin-success` | `{ user, session }` | Fired when sign-in succeeds |
-| `forgot-password` | - | Fired when "Forgot password?" is clicked |
-| `show-signup` | - | Fired when "Sign up" link is clicked |
+| `email-signin` | `{ email, password }` | User submitted email/password form |
+| `oauth-signin` | `{ provider }` | User clicked OAuth button (`'github'` or `'google'`) |
+| `forgot-password` | `{ email }` | User clicked "Forgot password?" |
+| `show-signup` | - | User clicked "Sign up" link |
 
-## How It Works
+## Component Properties
 
-1. **User signs in** via Clerk (email/password or OAuth)
-2. **Clerk generates JWT** with proper claims including `role: 'authenticated'`
-3. **Supabase validates** the Clerk JWT as a third-party token
-4. **Component configures** Supabase client to use Clerk session token
-5. **RLS policies work** using Clerk JWT claims
+Configure these in the WeWeb editor:
 
-## Architecture
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `showGithubLogin` | Boolean | `true` | Show/hide GitHub OAuth button |
+| `showGoogleLogin` | Boolean | `true` | Show/hide Google OAuth button |
 
+## Setup in WeWeb
+
+### 1. Import the Component
+
+1. Go to **Coded Components** in WeWeb
+2. **Import from GitHub:**
+   - Repository: `akraut1/create-component`
+   - Branch: `fix-import-global-styles-95733`
+   - Path: `sign-in`
+3. Wait for the build to complete
+
+### 2. Add to Your Page
+
+1. Drag the **"Sign In Form"** component onto your page
+2. Configure the properties (show/hide OAuth buttons)
+
+### 3. Connect to Workflows
+
+Click on the component and add event listeners in the WeWeb workflows panel:
+
+#### Email/Password Sign In
+
+**Event:** `email-signin`
+
+**Example Workflow:**
 ```
-┌─────────┐      ┌────────┐      ┌──────────┐
-│  WeWeb  │─────▶│  Clerk │─────▶│ Supabase │
-│Component│      │  Auth  │      │    DB    │
-└─────────┘      └────────┘      └──────────┘
-     │               │                  │
-     │               ├─ JWT Token ─────▶│
-     │               │                  │
-     └─────────── RLS Checks ──────────┘
+1. Get event payload: email, password
+2. Call Clerk API / Supabase Auth / Your API
+3. On success: 
+   - Save user session
+   - Navigate to dashboard
+4. On error:
+   - Call component.setError("Invalid credentials")
 ```
 
-## Benefits of This Approach
+#### OAuth Sign In
 
-✅ **No data syncing needed** - Clerk tokens work directly with Supabase  
-✅ **No foreign tables** - Use Clerk's JWT claims in RLS policies  
-✅ **Secure** - Tokens validated by Supabase  
-✅ **Real-time** - Clerk session state updates immediately  
-✅ **Scalable** - No middleware or sync services required
+**Event:** `oauth-signin`
+
+**Example Workflow:**
+```
+1. Get event payload: provider ("github" or "google")
+2. Redirect to OAuth flow:
+   - Clerk OAuth URL
+   - Supabase OAuth URL
+   - Custom OAuth endpoint
+```
+
+#### Forgot Password
+
+**Event:** `forgot-password`
+
+**Example Workflow:**
+```
+1. Get event payload: email
+2. Call password reset API
+3. Show success message
+```
+
+#### Show Sign Up
+
+**Event:** `show-signup`
+
+**Example Workflow:**
+```
+1. Navigate to sign-up page
+```
+
+## Public Methods
+
+You can call these methods from WeWeb workflows:
+
+| Method | Parameters | Description |
+|--------|------------|-------------|
+| `setError(message)` | `message: string` | Display an error message |
+| `setLoading(isLoading)` | `isLoading: boolean` | Set loading state |
+| `clearForm()` | - | Reset form fields and state |
+
+### Example: Show Error After Failed Login
+
+In your workflow after API call fails:
+```
+Component → Execute Action → setError → "Invalid email or password"
+```
+
+## Example: Clerk Integration
+
+### Option 1: Using Clerk's Hosted UI (Recommended)
+
+1. **On `oauth-signin` event:**
+   ```
+   - Navigate to: https://your-app.clerk.accounts.dev/sign-in/sso-callback?provider=[event.provider]
+   ```
+
+2. **On `email-signin` event:**
+   ```
+   - Use Clerk's API to authenticate
+   - Or redirect to Clerk's hosted sign-in page
+   ```
+
+### Option 2: Using Clerk API Directly
+
+Add Clerk scripts to your WeWeb project's **Custom Head Code**:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js"></script>
+<script>
+  // Initialize Clerk globally
+  window.clerkInstance = new window.Clerk('YOUR_PUBLISHABLE_KEY');
+  window.clerkInstance.load();
+</script>
+```
+
+Then in your workflows, execute JavaScript:
+```javascript
+// On email-signin event
+const { email, password } = event.payload;
+const result = await window.clerkInstance.signIn.create({
+  identifier: email,
+  password: password
+});
+
+if (result.status === 'complete') {
+  await window.clerkInstance.setActive({ session: result.createdSessionId });
+  // Navigate to dashboard
+}
+```
+
+## Example: Supabase Integration
+
+### Setup
+
+In WeWeb, connect your Supabase project via the Supabase plugin.
+
+### Workflow
+
+**On `email-signin` event:**
+```
+1. Supabase → Sign In with Email
+   - Email: event.email
+   - Password: event.password
+2. On success:
+   - Navigate to /dashboard
+3. On error:
+   - Component → setError → error.message
+```
+
+**On `oauth-signin` event:**
+```
+1. Supabase → Sign In with OAuth
+   - Provider: event.provider
+   - Redirect URL: /auth/callback
+```
+
+## Styling
+
+The component uses scoped SCSS and follows shadcn/ui design tokens:
+
+- **Colors**: Tailwind-inspired grays and blues
+- **Spacing**: Consistent rem-based spacing
+- **Typography**: Clean, readable font sizes
+- **Dark Mode**: Automatic via `prefers-color-scheme`
+
+To customize, fork the component and modify the `<style>` section.
 
 ## Development
 
 To serve locally:
 ```bash
-npm run serve --port=[PORT]
+npm install
+npm run serve
 ```
 
-Then go to WeWeb editor, open developer popup and add your custom element.
-
-Before release, check build errors:
+To build:
 ```bash
-npm run build --name=sign-in
+npm run build
 ```
 
-## Customization
+## Benefits of This Approach
 
-### Styling
-
-The component uses scoped SCSS. To customize:
-
-1. Modify colors in the `<style>` section
-2. Adjust spacing, fonts, and borders
-3. Customize dark mode theme
-
-### Behavior
-
-- Modify OAuth providers in `handleOAuthSignIn()`
-- Add custom validation in `handleEmailSignIn()`
-- Extend with additional Clerk features (MFA, etc.)
-
-## Troubleshooting
-
-### "Authentication not initialized"
-- Verify your Clerk publishable key is correct
-- Check browser console for initialization errors
-
-### "Failed to sign in"
-- Ensure Clerk JWT contains `role` claim
-- Verify Supabase third-party auth is enabled for Clerk
-
-### OAuth redirect issues
-- Check your Clerk OAuth redirect URLs
-- Verify `redirectAfterSignIn` property is set correctly
+✅ **No external dependencies** - Builds successfully in WeWeb  
+✅ **Security compliant** - No CSP violations  
+✅ **Flexible** - Works with any auth provider  
+✅ **Maintainable** - Separation of UI and logic  
+✅ **Reusable** - Same component for Clerk, Supabase, Auth0, etc.  
 
 ## Resources
 
-- [Supabase + Clerk Documentation](https://supabase.com/docs/guides/auth/third-party/clerk)
-- [Clerk Documentation](https://clerk.com/docs)
 - [shadcn/ui Design System](https://ui.shadcn.com)
+- [WeWeb Documentation](https://docs.weweb.io)
+- [Clerk Documentation](https://clerk.com/docs)
+- [Supabase Auth Documentation](https://supabase.com/docs/guides/auth)
 
 ## License
 

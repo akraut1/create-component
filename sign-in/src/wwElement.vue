@@ -60,7 +60,7 @@
       <div class="social-buttons">
         <button
           v-if="content.showGithubLogin"
-          @click="handleOAuthSignIn('oauth_github')"
+          @click="handleOAuthSignIn('github')"
           class="btn-social"
           type="button"
           :disabled="loading"
@@ -73,7 +73,7 @@
 
         <button
           v-if="content.showGoogleLogin"
-          @click="handleOAuthSignIn('oauth_google')"
+          @click="handleOAuthSignIn('google')"
           class="btn-social"
           type="button"
           :disabled="loading"
@@ -108,172 +108,77 @@ export default {
       password: '',
       loading: false,
       errorMessage: '',
-      clerk: null,
-      supabase: null,
-      scriptsLoaded: false,
     };
   },
-  async mounted() {
-    await this.loadExternalScripts();
-    await this.initializeClerk();
-    this.initializeSupabase();
-  },
   methods: {
-    async loadExternalScripts() {
-      if (this.scriptsLoaded) return;
-
-      // Load Clerk from CDN
-      await this.loadScript(
-        'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js',
-        'clerk-script'
-      );
-
-      // Load Supabase from CDN
-      await this.loadScript(
-        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
-        'supabase-script'
-      );
-
-      this.scriptsLoaded = true;
-    },
-
-    loadScript(src, id) {
-      return new Promise((resolve, reject) => {
-        if (document.getElementById(id)) {
-          resolve();
-          return;
-        }
-
-        const script = document.createElement('script');
-        script.src = src;
-        script.id = id;
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    },
-
-    async initializeClerk() {
-      if (!this.content.clerkPublishableKey) {
-        console.error('Clerk publishable key not provided');
+    handleEmailSignIn() {
+      // Validate form
+      if (!this.email || !this.password) {
+        this.errorMessage = 'Please enter both email and password';
         return;
       }
 
-      if (!window.Clerk) {
-        console.error('Clerk library not loaded');
-        return;
-      }
-
-      try {
-        this.clerk = new window.Clerk(this.content.clerkPublishableKey);
-        await this.clerk.load();
-        
-        // Check if user is already signed in
-        if (this.clerk.user) {
-          this.handleSuccessfulSignIn();
-        }
-      } catch (error) {
-        console.error('Error initializing Clerk:', error);
-        this.errorMessage = 'Failed to initialize authentication';
-      }
-    },
-
-    initializeSupabase() {
-      if (!this.content.supabaseUrl || !this.content.supabaseAnonKey) {
-        console.warn('Supabase credentials not provided');
-        return;
-      }
-
-      if (!window.supabase) {
-        console.error('Supabase library not loaded');
-        return;
-      }
-
-      this.supabase = window.supabase.createClient(
-        this.content.supabaseUrl,
-        this.content.supabaseAnonKey,
-        {
-          accessToken: async () => {
-            if (this.clerk?.session) {
-              return await this.clerk.session.getToken();
-            }
-            return null;
-          },
-        }
-      );
-    },
-
-    async handleEmailSignIn() {
-      if (!this.clerk) {
-        this.errorMessage = 'Authentication not initialized';
-        return;
-      }
-
-      this.loading = true;
+      // Clear previous errors
       this.errorMessage = '';
-
-      try {
-        const result = await this.clerk.signIn.create({
-          identifier: this.email,
-          password: this.password,
-        });
-
-        if (result.status === 'complete') {
-          await this.clerk.setActive({ session: result.createdSessionId });
-          this.handleSuccessfulSignIn();
-        }
-      } catch (error) {
-        console.error('Sign in error:', error);
-        this.errorMessage = error.errors?.[0]?.message || 'Failed to sign in';
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async handleOAuthSignIn(strategy) {
-      if (!this.clerk) {
-        this.errorMessage = 'Authentication not initialized';
-        return;
-      }
-
       this.loading = true;
-      this.errorMessage = '';
 
-      try {
-        await this.clerk.signIn.authenticateWithRedirect({
-          strategy,
-          redirectUrl: window.location.origin + (this.content.redirectAfterSignIn || '/dashboard'),
-          redirectUrlComplete: window.location.origin + (this.content.redirectAfterSignIn || '/dashboard'),
-        });
-      } catch (error) {
-        console.error('OAuth sign in error:', error);
-        this.errorMessage = 'Failed to sign in with OAuth provider';
-        this.loading = false;
-      }
-    },
-
-    handleSuccessfulSignIn() {
-      // Emit event for WeWeb
-      this.$emit('signin-success', {
-        user: this.clerk.user,
-        session: this.clerk.session,
+      // Emit event for WeWeb workflows to handle
+      this.$emit('email-signin', {
+        email: this.email,
+        password: this.password,
       });
 
-      // Redirect if configured
-      if (this.content.redirectAfterSignIn) {
-        window.location.href = this.content.redirectAfterSignIn;
-      }
+      // Note: Parent workflow should set loading back to false
+      // For now, auto-reset after 500ms to prevent stuck state
+      setTimeout(() => {
+        this.loading = false;
+      }, 500);
+    },
+
+    handleOAuthSignIn(provider) {
+      this.errorMessage = '';
+      this.loading = true;
+
+      // Emit event for WeWeb workflows to handle
+      this.$emit('oauth-signin', {
+        provider: provider, // 'github' or 'google'
+      });
+
+      // Auto-reset loading state
+      setTimeout(() => {
+        this.loading = false;
+      }, 500);
     },
 
     handleForgotPassword() {
-      // Emit event for WeWeb to handle
-      this.$emit('forgot-password');
-      // You could also implement Clerk's password reset flow here
+      // Emit event for WeWeb workflows to handle
+      this.$emit('forgot-password', {
+        email: this.email,
+      });
     },
 
     handleShowSignUp() {
-      // Emit event for WeWeb to handle
+      // Emit event for WeWeb workflows/navigation to handle
       this.$emit('show-signup');
+    },
+
+    // Public method that can be called from WeWeb workflows
+    setError(message) {
+      this.errorMessage = message;
+      this.loading = false;
+    },
+
+    // Public method to clear the form
+    clearForm() {
+      this.email = '';
+      this.password = '';
+      this.errorMessage = '';
+      this.loading = false;
+    },
+
+    // Public method to set loading state
+    setLoading(isLoading) {
+      this.loading = isLoading;
     },
   },
 };
