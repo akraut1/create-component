@@ -5,6 +5,10 @@
     "build": "weweb build",
     "serve": "weweb serve"
   },
+  "dependencies": {
+    "@clerk/clerk-js": "^5.0.0",
+    "@supabase/supabase-js": "^2.39.0"
+  },
   "devDependencies": {
     "@weweb/cli": "latest"
   }
