@@ -51,7 +51,7 @@ https://github.com/YOUR_USERNAME/weweb-component-name.git
 
 ## 📦 Publishing a Component
 
-### Quick Publish
+### Quick Publish (Manual)
 
 ```bash
 ./publish-component.sh <component-name>
@@ -68,6 +68,31 @@ This will:
 3. ✅ Initialize git repository
 4. ✅ Create initial commit
 5. ✅ Show next steps for GitHub
+
+### Automated Publish (Recommended)
+
+```bash
+./publish-component.sh <component-name> --create-repo
+```
+
+**Example:**
+```bash
+./publish-component.sh auth-sign-in --create-repo
+```
+
+This will:
+1. ✅ Create standalone repository
+2. ✅ Initialize git
+3. ✅ **Automatically create GitHub repository**
+4. ✅ **Push code to GitHub**
+5. ✅ **Apply security settings** (branch protection, force push prevention)
+6. ✅ Show WeWeb import URL
+
+**Security features automatically applied:**
+- 🔒 Force pushes disabled
+- 🔒 Branch deletion disabled
+- 🔒 Only you can push changes
+- ✅ Others can fork and submit PRs
 
 ### Manual Publish Process
 
@@ -215,6 +240,21 @@ After making changes to a component in this monorepo:
    ```
 
 WeWeb will automatically pull the latest version on next sync.
+
+### Applying Security Settings to Existing Repos
+
+If you have existing repositories that need security configuration:
+
+```bash
+./configure-repo-security.sh weweb-component-name
+```
+
+This applies:
+- Branch protection rules
+- Force push prevention
+- Auto-delete merged branches
+
+See [SECURITY.md](SECURITY.md) for details.
 
 ---
 

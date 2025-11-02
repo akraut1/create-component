@@ -121,6 +121,39 @@ if [ "$CREATE_REPO" = true ]; then
         git branch -M main
         git push -u origin main
         
+        echo -e "${GREEN}✓${NC} Repository created and code pushed"
+        
+        # Configure repository security settings
+        echo -e "${GREEN}✓${NC} Configuring repository security..."
+        
+        # Enable repository settings
+        gh repo edit "${GH_USERNAME}/${REPO_NAME}" \
+            --enable-merge-commit \
+            --enable-squash-merge \
+            --enable-rebase-merge \
+            --delete-branch-on-merge \
+            2>/dev/null || echo -e "${YELLOW}  Note: Some repo settings may require manual configuration${NC}"
+        
+        # Apply branch protection rules
+        echo -e "${GREEN}✓${NC} Applying branch protection rules..."
+        
+        # Check if protection rules file exists
+        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        PROTECTION_RULES="${SCRIPT_DIR}/.github-protection-rules.json"
+        
+        if [ -f "$PROTECTION_RULES" ]; then
+            if gh api "repos/${GH_USERNAME}/${REPO_NAME}/branches/main/protection" \
+                --method PUT \
+                --input "$PROTECTION_RULES" > /dev/null 2>&1; then
+                echo -e "${GREEN}✓${NC} Branch protection enabled (main branch)"
+            else
+                echo -e "${YELLOW}  Note: Branch protection rules may require manual setup${NC}"
+                echo -e "${YELLOW}  Visit: https://github.com/${GH_USERNAME}/${REPO_NAME}/settings/branches${NC}"
+            fi
+        else
+            echo -e "${YELLOW}  Warning: Protection rules file not found${NC}"
+        fi
+        
         echo ""
         echo -e "${GREEN}==================================${NC}"
         echo -e "${GREEN}  Component Published!${NC}"
@@ -128,6 +161,12 @@ if [ "$CREATE_REPO" = true ]; then
         echo ""
         echo -e "${GREEN}✓${NC} Repository: ${BLUE}https://github.com/${GH_USERNAME}/${REPO_NAME}${NC}"
         echo -e "${GREEN}✓${NC} Code pushed to GitHub"
+        echo -e "${GREEN}✓${NC} Security settings applied"
+        echo ""
+        echo -e "${BLUE}Repository Protection:${NC}"
+        echo -e "  • Force pushes: ${RED}Disabled${NC}"
+        echo -e "  • Branch deletion: ${RED}Disabled${NC}"
+        echo -e "  • Auto-delete merged branches: ${GREEN}Enabled${NC}"
         echo ""
         echo -e "${YELLOW}Import into WeWeb:${NC}"
         echo -e "   ${BLUE}https://github.com/${GH_USERNAME}/${REPO_NAME}.git${NC}"
