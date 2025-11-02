@@ -59,12 +59,12 @@ When you publish a component using `./publish-component.sh <component> --create-
 If you already have a repository and want to apply these security settings:
 
 ```bash
-./configure-repo-security.sh weweb-component-name
+./gh-protect-repo.sh weweb-component-name
 ```
 
 **Example:**
 ```bash
-./configure-repo-security.sh weweb-auth-sign-in
+./gh-protect-repo.sh weweb-auth-sign-in
 ```
 
 This will apply the same security rules to an existing repository.
@@ -190,7 +190,7 @@ If you need to modify security rules for all future components:
 1. Edit `.github-protection-rules.json`
 2. Commit changes
 3. Future published components will use new rules
-4. Apply to existing repos with: `./configure-repo-security.sh <repo-name>`
+4. Apply to existing repos with: `./gh-protect-repo.sh <repo-name>`
 
 ---
 

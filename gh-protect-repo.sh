@@ -18,9 +18,9 @@ echo -e "${BLUE}==================================${NC}\n"
 
 # Check if repository name is provided
 if [ -z "$1" ]; then
-    echo -e "${YELLOW}Usage: ./configure-repo-security.sh <repository-name>${NC}"
+    echo -e "${YELLOW}Usage: ./gh-protect-repo.sh <repository-name>${NC}"
     echo ""
-    echo "Example: ./configure-repo-security.sh weweb-auth-sign-in"
+    echo "Example: ./gh-protect-repo.sh weweb-auth-sign-in"
     echo ""
     exit 1
 fi

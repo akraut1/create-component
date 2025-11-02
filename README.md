@@ -246,7 +246,7 @@ WeWeb will automatically pull the latest version on next sync.
 If you have existing repositories that need security configuration:
 
 ```bash
-./configure-repo-security.sh weweb-component-name
+./gh-protect-repo.sh weweb-component-name
 ```
 
 This applies:
