@@ -74,7 +74,7 @@ async function init() {
 
     let isReact = argv.r || argv.react
 
-    const templateDir = path.join(__dirname, `template-${type}${isReact ? '-react' : ''}`);
+    const templateDir = path.join(__dirname, `_templates/template-${type}${isReact ? '-react' : ''}`);
 
     const write = (file, content) => {
         const targetPath = renameFiles[file] ? path.join(root, renameFiles[file]) : path.join(root, file);

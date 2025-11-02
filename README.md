@@ -6,11 +6,12 @@ Development workspace for creating WeWeb custom components. This monorepo struct
 
 ```
 weweb-components/
-├── auth-sign-in/          # Component: Authentication sign-in form
-├── template-element/       # Vue element template
-├── template-element-react/ # React element template
-├── template-section/          # Vue section template
-├── template-section-react/    # React section template
+├── auth-sign-in/              # Component: Authentication sign-in form
+├── _templates/                # Component templates
+│   ├── template-element/      # Vue element template
+│   ├── template-element-react/# React element template
+│   ├── template-section/      # Vue section template
+│   └── template-section-react/# React section template
 ├── gh-publish-component.sh    # Script to publish components
 └── index.js                   # Component scaffolding tool
 ```
@@ -141,11 +142,11 @@ node index.js
 
 ### From Templates
 
-Copy one of the template directories:
-- `template-element/` - Vue element
-- `template-element-react/` - React element
-- `template-section/` - Vue section
-- `template-section-react/` - React section
+Copy one of the template directories from `_templates/`:
+- `_templates/template-element/` - Vue element
+- `_templates/template-element-react/` - React element
+- `_templates/template-section/` - Vue section
+- `_templates/template-section-react/` - React section
 
 ---
 
