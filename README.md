@@ -9,10 +9,10 @@ weweb-components/
 ├── auth-sign-in/          # Component: Authentication sign-in form
 ├── template-element/       # Vue element template
 ├── template-element-react/ # React element template
-├── template-section/       # Vue section template
-├── template-section-react/ # React section template
-├── publish-component.sh    # Script to publish components
-└── index.js               # Component scaffolding tool
+├── template-section/          # Vue section template
+├── template-section-react/    # React section template
+├── gh-publish-component.sh    # Script to publish components
+└── index.js                   # Component scaffolding tool
 ```
 
 ## 🚀 Workflow
@@ -31,7 +31,7 @@ When a component is production-ready, publish it to its own repository:
 
 ```bash
 # Automatically create standalone repository
-./publish-component.sh auth-sign-in
+./gh-publish-component.sh auth-sign-in
 ```
 
 This creates a separate git repository at `../weweb-auth-sign-in/` ready to push to GitHub.
@@ -54,12 +54,12 @@ https://github.com/YOUR_USERNAME/weweb-component-name.git
 ### Quick Publish (Manual)
 
 ```bash
-./publish-component.sh <component-name>
+./gh-publish-component.sh <component-name>
 ```
 
 **Example:**
 ```bash
-./publish-component.sh auth-sign-in
+./gh-publish-component.sh auth-sign-in
 ```
 
 This will:
@@ -72,12 +72,12 @@ This will:
 ### Automated Publish (Recommended)
 
 ```bash
-./publish-component.sh <component-name> --create-repo
+./gh-publish-component.sh <component-name> --create-repo
 ```
 
 **Example:**
 ```bash
-./publish-component.sh auth-sign-in --create-repo
+./gh-publish-component.sh auth-sign-in --create-repo
 ```
 
 This will:
@@ -224,7 +224,7 @@ After making changes to a component in this monorepo:
 
 1. **Re-publish the component:**
    ```bash
-   ./publish-component.sh component-name
+   ./gh-publish-component.sh component-name
    ```
 
 2. **Navigate to published repo:**

@@ -35,7 +35,7 @@ done
 
 # Check if component name is provided
 if [ -z "$COMPONENT_NAME" ]; then
-    echo -e "${YELLOW}Usage: ./publish-component.sh <component-folder-name> [--create-repo]${NC}"
+    echo -e "${YELLOW}Usage: ./gh-publish-component.sh <component-folder-name> [--create-repo]${NC}"
     echo ""
     echo "Options:"
     echo "  --create-repo    Automatically create GitHub repository and push"

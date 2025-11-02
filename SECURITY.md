@@ -4,7 +4,7 @@ This document explains the security configuration applied to all published WeWeb
 
 ## 🔒 Automatic Security Configuration
 
-When you publish a component using `./publish-component.sh <component> --create-repo`, the following security settings are **automatically applied**:
+When you publish a component using `./gh-publish-component.sh <component> --create-repo`, the following security settings are **automatically applied**:
 
 ### Repository Settings
 
