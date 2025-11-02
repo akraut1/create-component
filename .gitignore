@@ -5,6 +5,3 @@ node_modules
 .env.local
 dist/
 build/
-
-# MCP credentials (workspace-specific)
-.cursor/mcp.json
