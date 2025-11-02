@@ -1,12 +1,25 @@
 {
-  "name": "auth-sign-in",
-  "version": "0.0.1",
-  "scripts": {
-    "build": "weweb build",
-    "serve": "weweb serve"
+  "name": "@weweb/create-component",
+  "version": "1.0.13",
+  "main": "index.js",
+  "bin": {
+    "create-component": "index.js"
   },
-  "dependencies": {},
-  "devDependencies": {
-    "@weweb/cli": "latest"
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weweb-team/create-component.git"
+  },
+  "author": "Weweb",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/weweb-team/create-component/issues"
+  },
+  "homepage": "https://github.com/weweb-team/create-component#readme",
+  "dependencies": {
+    "enquirer": "^2.3.6",
+    "minimist": "^1.2.5"
   }
 }
