@@ -5,7 +5,7 @@ export default (props) => {
     const style = { color: props.content && props.content.textColor };
 
     return (
-        <div class="my-section">
+        <div className="my-section">
         <h1 style={style}>My Title</h1>
         <p>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
