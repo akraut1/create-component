@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# WeWeb Component Publisher
+# Copies a component from monorepo to a standalone repository
+
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}==================================${NC}"
+echo -e "${BLUE}  WeWeb Component Publisher${NC}"
+echo -e "${BLUE}==================================${NC}\n"
+
+# Check if component name is provided
+if [ -z "$1" ]; then
+    echo -e "${YELLOW}Usage: ./publish-component.sh <component-folder-name>${NC}"
+    echo ""
+    echo "Available components:"
+    ls -d */ 2>/dev/null | grep -v "node_modules\|_templates\|_scaffolding\|.git\|.cursor\|src" | sed 's|/||'
+    exit 1
+fi
+
+COMPONENT_NAME=$1
+SOURCE_DIR="./${COMPONENT_NAME}"
+DEST_DIR="../weweb-${COMPONENT_NAME}"
+
+# Check if source component exists
+if [ ! -d "$SOURCE_DIR" ]; then
+    echo -e "${YELLOW}Error: Component '${COMPONENT_NAME}' not found${NC}"
+    echo "Make sure the folder exists in: $(pwd)"
+    exit 1
+fi
+
+# Check if destination already exists
+if [ -d "$DEST_DIR" ]; then
+    echo -e "${YELLOW}Warning: Destination ${DEST_DIR} already exists${NC}"
+    read -p "Do you want to overwrite it? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Cancelled."
+        exit 1
+    fi
+    rm -rf "$DEST_DIR"
+fi
+
+# Create destination directory
+echo -e "${GREEN}✓${NC} Creating standalone repository: ${DEST_DIR}"
+mkdir -p "$DEST_DIR"
+
+# Copy component files
+echo -e "${GREEN}✓${NC} Copying component files..."
+cp -r "${SOURCE_DIR}"/* "${DEST_DIR}/"
+if [ -f "${SOURCE_DIR}/.gitignore" ]; then
+    cp "${SOURCE_DIR}/.gitignore" "${DEST_DIR}/"
+fi
+
+# Initialize git repository
+echo -e "${GREEN}✓${NC} Initializing git repository..."
+cd "$DEST_DIR"
+git init
+git add -A
+git commit -m "Initial commit: ${COMPONENT_NAME} WeWeb component"
+
+# Instructions
+echo ""
+echo -e "${GREEN}==================================${NC}"
+echo -e "${GREEN}  Component Ready to Publish!${NC}"
+echo -e "${GREEN}==================================${NC}"
+echo ""
+echo -e "Repository created at: ${BLUE}${DEST_DIR}${NC}"
+echo ""
+echo -e "${YELLOW}Next steps:${NC}"
+echo ""
+echo "1. Create a new GitHub repository:"
+echo -e "   ${BLUE}https://github.com/new${NC}"
+echo ""
+echo "2. Repository name: ${BLUE}weweb-${COMPONENT_NAME}${NC}"
+echo "   ❌ DO NOT initialize with README, .gitignore, or license"
+echo ""
+echo "3. Run these commands:"
+echo -e "   ${BLUE}cd ${DEST_DIR}${NC}"
+echo -e "   ${BLUE}git remote add origin https://github.com/YOUR_USERNAME/weweb-${COMPONENT_NAME}.git${NC}"
+echo -e "   ${BLUE}git branch -M main${NC}"
+echo -e "   ${BLUE}git push -u origin main${NC}"
+echo ""
+echo "4. Import into WeWeb:"
+echo -e "   ${BLUE}https://github.com/YOUR_USERNAME/weweb-${COMPONENT_NAME}.git${NC}"
+echo ""
+
